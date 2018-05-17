@@ -21,72 +21,31 @@
  */
 
 #define SERIAL1_ENABLE
-//#define SERIAL2_ENABLE
-//#define SOFTSERIAL_ENABLE
-//#define DEBUG_NK
 
-#ifdef SOFTSERIAL_ENABLE
-#include <SoftwareSerial.h>
-#define rxPin 3
-#define txPin 2
-#endif
-
-union tx_data {
-  uint32_t unSeqNumber;
-  uint8_t ucByte[4];
-};
-
-union tx_data stTXData;
-
-#ifdef SOFTSERIAL_ENABLE
-SoftwareSerial SerialSoft = SoftwareSerial(rxPin, txPin); // rx, tx  
-#endif
+#define DEBUG_NK
 
 int i = 0;
 
 void setup() {
   
   //Initialize serial and wait for port to open:
-//  Serial.begin(100000, SERIAL_8E2); //
-  Serial.begin(115200, SERIAL_8N1); //  
-  
-#ifdef SERIAL1_ENABLE
+  Serial.begin(115200, SERIAL_8N1); //
   Serial1.begin(100000, SERIAL_8E2); //
-#endif  
-
-#ifdef SERIAL2_ENABLE
-  Serial2.begin(100000, SERIAL_8E2);
-#endif  
-
-#ifdef SOFTSERIAL_ENABLE
-  pinMode(rxPin, INPUT);
-  pinMode(txPin, OUTPUT);
-
-  SerialSoft.begin(115200);
-#endif
+  Serial2.begin(115200, SERIAL_8N1); //  
 
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-#ifdef SERIAL1_ENABLE
   while (!Serial1) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-#endif  
-#ifdef SERIAL2_ENABLE
+
   while (!Serial2) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-#endif  
 
-#ifdef SOFTSERIAL_ENABLE
-  while (!SerialSoft) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-#endif  
-
-  pinMode(13, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 
 //  Serial.println("## Receive character from Serial1 and output to Serial0(Default)");
 #if 0
@@ -110,35 +69,33 @@ void loop() {
 
   unsigned char ch;
     
-#ifdef SOFTSERIAL_ENABLE
-
-  if(SerialSoft.available() > 0) {
-      ch = SerialSoft.read();
-      Serial.write(&ch, 1);
-#ifdef DEBUG_NK
-      digitalWrite(13, 1);
-#endif      
-     
-  } else {
-#ifdef DEBUG_NK
-    digitalWrite(13, 0);
-#endif    
-  }
-  
-#elif defined(SERIAL1_ENABLE)
-
-  if(Serial.available() > 0) {
-      ch = Serial.read();
+  if(Serial2.available() > 0) {
+      ch = Serial2.read();
       Serial1.write(ch);
 #ifdef DEBUG_NK
-      digitalWrite(13, 1);
+      digitalWrite(LED_BUILTIN, 1);
 #endif      
      
   } else {
 #ifdef DEBUG_NK
-    digitalWrite(13, 0);
+    digitalWrite(LED_BUILTIN, 0);
 #endif    
   }
 
+
+#if 0
+  if(Serial1.available() > 0) {
+      ch = Serial1.read();
+      Serial2.write(ch);
+#ifdef DEBUG_NK
+      digitalWrite(LED_BUILTIN, 1);
+#endif      
+     
+  } else {
+#ifdef DEBUG_NK
+    digitalWrite(LED_BUILTIN, 0);
+#endif    
+  }
 #endif
+  
 }
